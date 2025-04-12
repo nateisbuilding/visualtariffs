@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Tariff Rates by Country</title>
+    <link rel="stylesheet" href="world.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
+    <script type="module" src="world.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>US Tariff Rates by Country</h1>
+        <div class="controls">
+      <!-- Replace <select> in .controls div -->
+<input type="text" id="country-search" list="country-suggestions" placeholder="Search for a country..." aria-label="Search for a country">
+<datalist id="country-suggestions"></datalist>
+            <button class="toggle-panel" id="toggle-panel">Show Tariff Info</button>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="map-container" id="map-container">
+            <div class="loading" id="loading">Loading map...</div>
+            <div class="tooltip" id="tooltip"></div>
+            <div class="legend" id="legend">
+                <div class="legend-title">Updated Tariff Rates</div>
+                <!-- Legend items dynamically populated -->
+            </div>
+        </div>
+        <div class="info-panel" id="info-panel">
+            <div class="country-info" id="country-info">
+                <div class="no-data">Select a country on the map to view tariff information</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
