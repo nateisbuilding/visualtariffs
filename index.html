@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-            <!-- Google tag (gtag.js) -->
+                <!-- Google tag (gtag.js) -->
  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZ1SCHRR84"></script>
  <script>
    window.dataLayer = window.dataLayer || [];
@@ -23,17 +23,29 @@
             <span class="bar"></span>
         </button>
         <div class="cta-container" id="banner">
-            follow to stay up to date <a href="https://x.com/writesfast" target="_blank">@writesfast</a>
-            <button id="close-banner" aria-label="Close banner">×</button>
+            <a href="about.html" class="top-right-link">About</a>
         </div>
     </header>
-    <div id="controls" class="hidden">
-        <input id="country-search" list="country-suggestions" placeholder="Search for a country">
-        <datalist id="country-suggestions"></datalist>
-        <button id="tariff-toggle">Show Previous Tariffs</button>
+    <div id="controls" class="hidden no-banner">
+        <select id="origin-search" aria-label="Select origin country">
+            <option value="" disabled selected>Select Origin</option>
+        </select>
+        <select id="material-select" aria-label="Select material">
+            <option value="" selected>Material (Optional)</option>
+            <option value="Steel">Steel</option>
+            <option value="Aluminum">Aluminum</option>
+        </select>
+        <input type="number" id="quantity-input" placeholder="Quantity" aria-label="Quantity" min="1">
+        <input type="number" id="price-input" placeholder="Price per Unit ($)" aria-label="Price per unit" min="0.01" step="0.01">
+        <button id="calculate-button">Calculate</button>
     </div>
     <div id="map-container"></div>
     <div id="legend"></div>
+    <div id="tariff-slider-container">
+        <label for="tariff-slider">Previous Tariffs</label>
+        <input type="range" id="tariff-slider" min="0" max="1" step="1" value="1" aria-label="Toggle between Previous and Current Tariffs">
+        <label for="tariff-slider">Current Tariffs</label>
+    </div>
     <div id="info-panel" class="hidden">
         <div id="country-info"></div>
     </div>
