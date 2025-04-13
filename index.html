@@ -1,47 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XZ1SCHRR84"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-XZ1SCHRR84');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>US Tariff Rates by Country</title>
+    <title>World Tariff Map</title>
     <link rel="stylesheet" href="world.css">
+</head>
+<body>
+    <header class="header">
+        <button id="menu-toggle" aria-label="Toggle menu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <div class="cta-container" id="banner">
+            follow to stay up to date <a href="https://x.com/writesfast" target="_blank">@writesfast</a>
+            <button id="close-banner" aria-label="Close banner">×</button>
+        </div>
+    </header>
+    <div id="controls" class="hidden">
+        <input id="country-search" list="country-suggestions" placeholder="Search for a country">
+        <datalist id="country-suggestions"></datalist>
+        <button id="tariff-toggle">Show Previous Tariffs</button>
+    </div>
+    <div id="map-container"></div>
+    <div id="legend"></div>
+    <div id="info-panel" class="hidden">
+        <div id="country-info"></div>
+    </div>
+    <div id="tooltip"></div>
+    <div id="loading">Loading map...</div>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.min.js"></script>
     <script src="data.js"></script>
     <script src="world.js"></script>
-</head>
-<body>
-    <div class="nav">
-        <a href="world.html" class="nav-link active">Tariff Map</a>
-    </div>
-    <div class="header">
-        <h1>US Tariff Rates by Country</h1>
-        <div class="controls">
-            <input type="text" id="country-search" list="country-suggestions" placeholder="Search for a country..." aria-label="Search for a country">
-            <datalist id="country-suggestions"></datalist>
-            <button class="toggle-panel" id="toggle-panel">Show Tariff Info</button>
-        </div>
-    </div>
-    <div class="main-container">
-        <div class="map-container" id="map-container">
-            <div class="loading" id="loading">Loading map...</div>
-        </div>
-        <div class="info-panel hidden" id="info-panel">
-            <div class="country-info" id="country-info">
-                <div class="no-data">Select a country on the map to view tariff information</div>
-            </div>
-        </div>
-        <div class="legend" id="legend"></div>
-        <div class="tooltip" id="tooltip"></div>
-    </div>
 </body>
 </html>
