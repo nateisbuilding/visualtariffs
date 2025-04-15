@@ -1,6 +1,6 @@
 const tariffData = {
     "European Union": { imports: "18.5%", previous: "20%", updated: "10%" },
-    "China": { imports: "13.4%", previous: "34%", updated: "145%" },
+    "China": { imports: "13.4%", previous: "34%", updated: "145%", section301: {'Electronics': 0.25, 'Clothing': 0.15} },
     "Japan": { imports: "4.5%", previous: "24%", updated: "10%" },
     "Vietnam": { imports: "4.2%", previous: "46%", updated: "10%" },
     "South Korea": { imports: "4%", previous: "25%", updated: "10%" },
@@ -181,7 +181,6 @@ const tariffData = {
     "Zimbabwe": { imports: "<1%", previous: "18%", updated: "10%" },
     "Heard and McDonald Islands": { imports: "NA", previous: "10%", updated: "10%" },
     "Svalbard and Jan Mayen": { imports: "NA", previous: "10%", updated: "10%" },
-    // New entries
     "American Samoa": { imports: "0%", previous: "0%", updated: "0%" },
     "Antarctica": { imports: "0%", previous: "0%", updated: "0%" },
     "Burkina Faso": { imports: "0%", previous: "0%", updated: "0%" },
@@ -306,3 +305,7 @@ const numericToAlpha3 = {
     "643": "RUS", "652": "BLM", "663": "MAF", "666": "SPM", "690": "SYC", "706": "SOM", "239": "SGS",
     "581": "UMI", "850": "VIR", "876": "WLF", "732": "ESH"
 };
+
+window.tariffData = tariffData;
+window.countryCodeToName = countryCodeToName;
+window.numericToAlpha3 = numericToAlpha3;
