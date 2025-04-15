@@ -5,8 +5,10 @@
     --highlight-color: #4a6fa5;
     --border-color: #3a3a3a;
     --map-bg: #1a1a1a;
-    --selected-color: #6a8cbf;
+    --selected-color: #f0f0f0;
     --transition-speed: 0.3s;
+    --tariff-low: #FFFACD; /* Lemon chiffon for 10% */
+    --tariff-high: #B22222; /* Firebrick for 50%/145% */
 }
 
 * {
@@ -33,7 +35,7 @@ body {
     display: flex;
     align-items: center;
     min-height: 40px;
-    z-index: 10;
+    z-index: 1000;
     border-bottom: 1px solid #3a3a3a;
 }
 
@@ -45,7 +47,7 @@ body {
     right: 10px;
     min-height: 40px;
     background-color: transparent;
-    z-index: 1002;
+    z-index: 1001;
 }
 
 .cta-container.visible {
@@ -61,26 +63,28 @@ body {
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    width: 24px;
-    height: 18px;
+    width: 30px;
+    height: 24px;
     z-index: 1003;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 0;
+    outline: none;
 }
 
 #menu-toggle .bar {
     display: block;
-    width: 24px;
-    height: 2px;
+    width: 100%;
+    height: 3px;
     background-color: #ffffff;
     margin: 0;
     transition: transform 0.3s ease, opacity 0.3s ease;
+    border-radius: 1px;
 }
 
 #menu-toggle.active .bar:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
+    transform: translateY(9px) rotate(45deg);
 }
 
 #menu-toggle.active .bar:nth-child(2) {
@@ -88,7 +92,7 @@ body {
 }
 
 #menu-toggle.active .bar:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
+    transform: translateY(-9px) rotate(-45deg);
 }
 
 /* Navigation (About/Dashboard Button) */
@@ -102,7 +106,7 @@ body {
     border-radius: 4px;
     text-decoration: none;
     font-size: 0.8rem;
-    z-index: 1004;
+    z-index: 1002;
     transition: background-color var(--transition-speed);
 }
 
@@ -114,26 +118,58 @@ body {
 #controls {
     background-color: var(--secondary-color);
     padding: 0.75rem;
-    position: absolute;
-    top: 55px;
-    left: 15px;
-    width: 220px;
+    position: fixed;
+    top: 40px;
+    left: 0;
+    width: 270px; /* Reduced from 300px by 10% */
+    height: calc(100vh - 40px);
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: 0;
     z-index: 999;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+}
+
+#controls:not(.hidden) {
+    display: flex;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 #controls.hidden {
     display: none;
+    animation: slideOut 0.3s ease-in;
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+    opacity: 1;
+    }
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
 }
 
 #controls.no-banner {
     top: 40px;
 }
 
+/* Form Inputs */
 #destination-input,
 #origin-search,
 #material-select,
@@ -149,43 +185,79 @@ body {
     width: 100%;
 }
 
-#destination-input {
-    opacity: 0.7;
-    cursor: not-allowed;
+/* Control Labels */
+.control-label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+    display: block;
 }
 
+/* Form Inputs (Updated to include goods-select) */
+#destination-input,
 #origin-search,
-#material-select {
+#goods-select,
+#quantity-input,
+#price-input,
+#calculate-button {
+    padding: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    width: 100%;
+}
+
+/* Ensure consistent dropdown styling */
+#origin-search,
+#goods-select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+    padding: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    width: 100%;
 }
 
 #origin-search option[disabled][selected],
-#material-select option[value=""][selected] {
-    color: #888; /* Grey placeholder */
+#goods-select option[disabled][selected] {
+    color: #888;
 }
 
-#quantity-input,
-#price-input {
-    appearance: textfield;
+/* Material Checkboxes (Side by side) */
+.material-checkboxes {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin: 0.5rem 0;
 }
 
-#quantity-input::-webkit-inner-spin-button,
-#price-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+.material-checkboxes label {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-color);
 }
 
-#calculate-button {
-    background-color: #B22222;
-    color: #fff;
-    border: none;
+.material-checkboxes input[type="checkbox"] {
+    margin-right: 0.5rem;
+    accent-color: var(--highlight-color);
+    width: 16px;
+    height: 16px;
     cursor: pointer;
 }
 
-#calculate-button:hover {
-    background-color: #8B1A1A;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .material-checkboxes {
+        flex-direction: row;
+        gap: 1rem;
+    }
 }
 
 /* Map */
@@ -194,6 +266,7 @@ body {
     height: calc(100vh - 55px);
     position: relative;
     overflow: hidden;
+    transition: padding-left 0.3s ease;
 }
 
 #map-container.no-banner {
@@ -220,18 +293,21 @@ svg {
     outline: none;
 }
 
+/* Selected country */
 .country.selected {
     fill: var(--selected-color) !important;
+    filter: drop-shadow(0 0 5px var(--selected-color));
 }
 
+/* No tariff data */
 .country.no-data {
-    fill: #555;
+    fill: #555 !important; /* Grey for no data */
     opacity: 0.7;
 }
 
 .country.no-data:hover,
 .country.no-data:focus {
-    fill: #666;
+    fill: #666 !important; /* Slightly lighter grey on hover/focus */
 }
 
 /* Info Panel */
@@ -311,20 +387,20 @@ svg {
 /* Tariff Result */
 .tariff-result {
     background-color: var(--primary-color);
-    border-radius: 4px;
+    border-radius:  Ром4px;
     padding: 1rem;
     margin-bottom: 1rem;
 }
 
 .tariff-result p {
     margin: 0.5rem 0;
-    font-size: 1rem; /* Match body text */
+    font-size: 1rem;
 }
 
 .tariff-result .tariff-label {
     font-weight: bold;
     color: #FFFACD;
-    font-size: 1rem; /* Match cost-label */
+    font-size: 1rem;
     text-transform: none;
 }
 
@@ -341,36 +417,48 @@ svg {
     padding: 2rem 0;
 }
 
-/* Legend */
+/* Legend (includes slider) */
 #legend {
-    position: absolute;
+    position: fixed;
     bottom: 20px;
-    left: 20px;
+    right: 20px;
     background-color: rgba(42, 42, 42, 0.85);
-    padding: 10px;
+    padding: 12px 16px;
     border-radius: 4px;
     z-index: 1000;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     transition: opacity var(--transition-speed);
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .legend-title {
     font-weight: bold;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+.legend-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    margin: 4px 0;
-    min-height: 12px;
-    font-size: 0.75rem;
+    margin: 3px 0;
+    min-height: 16px;
+    font-size: 0.8rem;
+    padding: 0;
 }
 
 .legend-color {
-    width: 12px;
-    height: 12px;
-    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    margin-right: 12px;
     border-radius: 2px;
     flex-shrink: 0;
     display: inline-block;
@@ -378,69 +466,63 @@ svg {
 }
 
 .legend-color.gradient {
-    width: 50px;
-    height: 12px;
+    width: 80px;
+    height: 16px;
+    background: linear-gradient(to right, var(--tariff-low), var(--tariff-high));
 }
 
-.legend-item .legend-color.no-data {
-    background-color: #555 !important;
-    width: 12px !important;
-    height: 12px !important;
-    box-sizing: border-box !important;
-    margin-right: 8px !important;
-    padding: 0 !important;
-    font-size: 0 !important;
-    line-height: 0 !important;
-    overflow: hidden !important;
-    position: relative !important;
-    vertical-align: middle !important;
+.legend-item .legend-color.low {
+    background-color: var(--tariff-low);
 }
 
-.legend-item span {
-    vertical-align: middle;
+.legend-item .legend-color.high {
+    background-color: var(--tariff-high);
+}
+
+/* No tariff data */
+.legend-item.no-data .legend-color {
+    background-color: #555;
+}
+
+.legend-item.no-data {
+    margin: 3px 0;
+        padding: 0;
+    align-items: center;
 }
 
 /* Tariff Slider */
-#tariff-slider-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: rgba(42, 42, 42, 0.85);
-    padding: 8px 12px;
-    border-radius: 4px;
-    z-index: 1000;
+#tariff-slider-wrapper {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.75rem;
-    color: var(--text-color);
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 2px; /* Tighter */
 }
 
+/* Slider styles */
 #tariff-slider {
-    width: 80px;
+    flex: 1;
     cursor: pointer;
     height: 4px;
     background: var(--border-color);
     border-radius: 2px;
     appearance: none;
     outline: none;
-    margin: 0;
-    vertical-align: middle;
 }
 
 #tariff-slider::-webkit-slider-thumb {
     appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     background: var(--highlight-color);
     border-radius: 50%;
     cursor: pointer;
-    margin-top: -4px; /* Center thumb on 4px track */
+    margin-top: -6px;
 }
 
 #tariff-slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     background: var(--highlight-color);
     border-radius: 50%;
     cursor: pointer;
@@ -576,28 +658,34 @@ svg {
     }
 
     #controls {
-        left: 0;
-        top: 55px;
         width: 100%;
-        border-radius: 0;
-        padding: 1rem;
+        height: auto;
+        max-height: calc(100vh - 40px);
     }
 
     #controls.no-banner {
         top: 40px;
     }
 
-    /* ... other responsive rules unchanged ... */
-
-    #tariff-slider-container {
+    #legend {
+        width: calc(100% - 20px);
         bottom: 10px;
         right: 10px;
-        padding: 6px 8px;
-        font-size: 0.7rem;
+        padding: 10px 12px;
     }
 
-    #tariff-slider {
-        width: 60px;
+    #tariff-slider-wrapper {
+        gap: 8px;
+        margin-top: 1px; /* Tightest for mobile */
+    }
+
+    .legend-title {
+        font-size: 0.8rem;
+    }
+
+    .legend-item {
+        font-size: 0.75rem;
+        margin: 2px 0;
     }
 
     #tooltip {
@@ -616,11 +704,28 @@ svg {
     .tariff-card {
         font-size: 0.9rem;
     }
+}
 
-    #legend {
-        font-size: 0.7rem;
-        bottom: 10px;
-        left: 10px;
-        padding: 8px;
-    }
+.country.selected {
+    fill: var(--selected-color);
+    filter: drop-shadow(0 0 5px var(--selected-color));
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+.disclaimer {
+    font-size: 0.75rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin-top: 1rem;
+    line-height: 1.4;
 }
