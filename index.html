@@ -1,91 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-                    <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZ1SCHRR84"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-  
-    gtag('config', 'G-XZ1SCHRR84');
-  </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Tariff Map</title>
-    <link rel="stylesheet" href="world.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Explore global tariff rates and trade news with an interactive world map.">
+        <meta name="keywords" content="tariff map, trade data, global tariffs, interactive map">
+        <meta name="author" content="Your Name">
+        <title>Tariff Map - Interactive Global Trade Data</title>
+        <link rel="stylesheet" href="world.css">
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Tariff Map",
+          "url": "https://visualtariffs.com",
+          "description": "Interactive world map showing tariff rates and trade news."
+        }
+        </script>
+      </head>
 <body>
-    <header class="header">
-        <button id="menu-toggle" aria-label="Toggle menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </button>
-        <div class="cta-container" id="banner">
-            <a href="about.html" class="top-right-link">About</a>
-        </div>
-    </header>
-    <div id="controls" class="hidden">
-        <label for="destination-input" class="control-label">Destination</label>
-        <input id="destination-input" value="United States" disabled aria-label="Destination">
-        <label for="origin-search" class="control-label">Origin</label>
-        <select id="origin-search" aria-label="Select origin country">
-            <option value="" disabled selected>Select origin country</option>
-        </select>
-        <label for="goods-select" class="control-label">Commodity</label>
-        <select id="goods-select" aria-label="Select commodity">
-            <option value="" disabled selected>Select commodity</option>
-            <option value="Automobiles">Automobiles</option>
-            <option value="Beauty and Personal Care">Beauty and Personal Care</option>
-            <option value="Books and Stationery">Books and Stationery</option>
-            <option value="Clothing">Clothing</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Food and Beverages">Food and Beverages</option>
-            <option value="Furniture">Furniture</option>
-            <option value="Health Products">Health Products</option>
-            <option value="Home Improvement">Home Improvement</option>
-            <option value="Homewares">Homewares</option>
-            <option value="Jewelry and Accessories">Jewelry and Accessories</option>
-            <option value="Mobile Devices and Accessories">Mobile Devices and Accessories</option>
-            <option value="Sports and Outdoor Equipment">Sports and Outdoor Equipment</option>
-            <option value="Specialty Items">Specialty Items</option>
-            <option value="Toys and Hobbies">Toys and Hobbies</option>
-            <option value="Travel and Leisure">Travel and Leisure</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Utilities and Services">Utilities and Services</option>
-        </select>
-        <label class="control-label">Commodity contains</label>
-        <div class="material-checkboxes">
-            <label><input type="checkbox" id="steel-checkbox" aria-label="Steel material"> Steel</label>
-            <label><input type="checkbox" id="aluminum-checkbox" aria-label="Aluminum material"> Aluminum</label>
-        </div>
-        <label for="quantity-input" class="control-label">Quantity</label>
-        <input id="quantity-input" type="number" min="1" placeholder="Quantity" aria-label="Quantity">
-        <label for="price-input" class="control-label">Price per unit (USD)</label>
-        <input id="price-input" type="number" min="0" step="0.01" placeholder="Price per unit (USD)" aria-label="Price per unit">
-        <button id="calculate-button">Calculate</button>
-        <p class="disclaimer">This calculator provides estimates for informational purposes only and is not intended for official tax, customs, or legal purposes. Consult authorities for accurate calculations.</p>
+  <div class="header">
+    <div class="cta-container"></div>
+    <a href="news.html" class="top-right-link">News</a>
+    <a href="about.html" class="top-right-link">About</a>
+  </div>
+  <div id="map-container">
+    <div id="loading" class="loading">Loading...</div>
+  </div>
+  <div id="info-panel" class="hidden"></div>
+  <div class="controls-container">
+    <div id="display-pane">
+      <div id="legend">
+        <div class="legend-title">Current Tariff Rates</div>
+        <div id="tariff-slider-wrapper"></div>
+        <div class="legend-item"><span class="legend-color gradient"></span>0% to 145%</div>
+      </div>
     </div>
-    <div id="map-container"></div>
-    <div id="legend">
-        <div id="tariff-slider-wrapper">
-            <span> Previous Rates</span>
-            <input type="range" id="tariff-slider" min="0" max="1" step="1" value="1">
-            <span> Current Rates</span>
-        </div>
+  </div>
+  <div id="mode-toggle-container">
+    <div id="mode-toggle">
+      <div id="mode-toggle-buttons"></div>
     </div>
-    <div id="info-panel" class="hidden">
-        <div id="country-info"></div>
-    </div>
-    <div id="tooltip"></div>
-    <div id="loading">Loading map...</div>
-
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.min.js"></script>
-    <script src="data.js"></script>
-    <script type="module" src="world.js"></script>
-    
+  </div>
+  <div id="tooltip"></div>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson@3"></script>
+  <script type="module" src="data.js"></script>
+  <script type="module" src="ui.js"></script>
+  <script type="module" src="map.js"></script>
+  <script type="module" src="world.js"></script>
+  <script type="module" src="news.js"></script>
 </body>
 </html>
