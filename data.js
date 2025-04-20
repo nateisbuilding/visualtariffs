@@ -306,6 +306,10 @@ const numericToAlpha3 = {
     "581": "UMI", "850": "VIR", "876": "WLF", "732": "ESH"
 };
 
+// Assign to window for compatibility with map.js and ui.js
 window.tariffData = tariffData;
 window.countryCodeToName = countryCodeToName;
 window.numericToAlpha3 = numericToAlpha3;
+
+// Export for ES modules
+export { tariffData, countryCodeToName, numericToAlpha3 };
