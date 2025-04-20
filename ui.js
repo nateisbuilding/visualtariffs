@@ -1,4 +1,4 @@
-export function initUI(svg, tariffScale) {
+export function initUI(svg, tariffScale, previousTariffScale) {
     let tooltipTimeout = null;
   
     function handleMouseOver(event, d) {
@@ -66,14 +66,14 @@ export function initUI(svg, tariffScale) {
     }
   
     function updateLegend(showPrevious) {
+      console.log('UI: Updating legend, showPrevious:', showPrevious);
       const legend = d3.select('#legend');
       legend.selectAll('*').remove();
   
+      const maxTariff = showPrevious ? 50 : 145;
       legend.append('div')
         .attr('class', 'legend-title')
         .text(showPrevious ? 'Previous Tariff Rates' : 'Current Tariff Rates');
-  
-      const maxTariff = showPrevious ? 50 : 145;
       legend.append('div')
         .attr('class', 'legend-item')
         .html(`
@@ -81,38 +81,13 @@ export function initUI(svg, tariffScale) {
           <span>10% - ${maxTariff}%</span>
         `)
         .select('.gradient')
-        .style('background', `linear-gradient(to right, ${tariffScale(10)}, ${tariffScale(maxTariff)})`);
-  
-      const keyTariffs = showPrevious ? [10, 50] : [10, 145];
-      keyTariffs.forEach(tariff => {
-        legend.append('div')
-          .attr('class', 'legend-item')
-          .html(`
-            <span class="legend-color"></span>
-            <span>${tariff}%</span>
-          `)
-          .select('.legend-color')
-          .style('background-color', tariffScale(tariff));
-      });
-  
-      legend.append('div')
-        .attr('class', 'legend-item')
-        .html(`
-          <span class="legend-color no-data"></span>
-          <span>No Tariff Data</span>
-        `);
+        .style('background', `linear-gradient(to right, ${showPrevious ? previousTariffScale(10) : tariffScale(10)}, ${showPrevious ? previousTariffScale(maxTariff) : tariffScale(maxTariff)})`);
     }
   
-    // Initialize hamburger menu
-    const menuToggle = document.getElementById('menu-toggle');
-    const controls = document.getElementById('controls');
-    
-    if (menuToggle && controls) {
-        menuToggle.addEventListener('click', () => {
-            menuToggle.classList.toggle('active');
-            controls.classList.toggle('hidden');
-        });
-    }
-  
-    return { updateLegend, handleMouseOver, handleMouseMove, handleMouseOut };
-  }
+    return {
+      handleMouseOver,
+      handleMouseMove,
+      handleMouseOut,
+      updateLegend
+    };
+}
