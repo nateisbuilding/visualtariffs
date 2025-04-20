@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Latest trade news and tariff updates">
+  <title>Trade News</title>
+  <link rel="stylesheet" href="world.css">
+</head>
+<body>
+  <div class="header">
+    <div class="cta-container"></div>
+    <a href="index.html" class="top-right-link">Map</a>
+    <a href="about.html" class="top-right-link">About</a>
+  </div>
+  <div class="news-container">
+    <h1>Trade News</h1>
+    <div id="news-articles"></div>
+  </div>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script type="module" src="articles.js"></script>
+  <script type="module">
+    import { curatedArticles } from './articles.js';
+
+    function initNewsPage() {
+      const newsContainer = d3.select('#news-articles');
+      newsContainer.selectAll('.news-article')
+        .data(curatedArticles.sort((a, b) => new Date(b.metadata.date) - new Date(a.metadata.date)))
+        .join('div')
+        .attr('class', 'news-article')
+        .html(d => `
+          <h3>${d.title}</h3>
+          <p>${d.content}</p>
+          <p class="source">Curated Analysis - ${new Date(d.metadata.date).toLocaleDateString()}</p>
+        `);
+    }
+
+    document.addEventListener('DOMContentLoaded', initNewsPage);
+  </script>
+</body>
+</html>
