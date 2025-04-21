@@ -5,6 +5,7 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
   let worldData = null;
   let selectedCountry = null;
   let isDragging = false;
+  let currentArc = null;
   const currentYear = 2025;
   let displayMode = 'tariff-rates';
   let showPrevious = false;
@@ -44,18 +45,30 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
       isDragging = false;
     });
 
-  const zoom = d3.zoom()
-    .scaleExtent([0.9, 4])
-    .on('zoom', (event) => {
-      if (!isInitialCentering) {
-        const { k } = event.transform;
-        const currentScale = projection.scale();
-        projection.scale(currentScale * k);
-        redraw();
-      }
-    });
+  svg.call(drag);
 
-  svg.call(drag).call(zoom);
+  // Function to toggle legend visibility
+  function toggleLegends(mode) {
+    console.log('Toggling legends for mode:', mode);
+    const isTariffRates = mode === 'tariff-rates';
+    d3.select('#legend')
+      .classed('hidden', !isTariffRates)
+      .style('display', isTariffRates ? 'flex' : 'none');
+    d3.select('#news-legend')
+      .classed('hidden', isTariffRates)
+      .style('display', isTariffRates ? 'none' : 'flex');
+    d3.select('#tariff-button-wrapper')
+      .classed('hidden', !isTariffRates)
+      .style('display', isTariffRates ? 'flex' : 'none');
+    console.log('Legend visibility:', {
+      tariffLegendHidden: d3.select('#legend').classed('hidden'),
+      tariffLegendDisplay: d3.select('#legend').style('display'),
+      newsLegendHidden: d3.select('#news-legend').classed('hidden'),
+      newsLegendDisplay: d3.select('#news-legend').style('display'),
+      tariffButtonsHidden: d3.select('#tariff-button-wrapper').classed('hidden'),
+      tariffButtonsDisplay: d3.select('#tariff-button-wrapper').style('display')
+    });
+  }
 
   const modeToggleContainer = d3.select('#mode-toggle-container');
   const modeToggle = modeToggleContainer.select('#mode-toggle');
@@ -81,30 +94,23 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
       d3.selectAll('.mode-button').classed('active', false);
       d3.select(`#mode-${d.id}`).classed('active', true);
       d3.select('#article-panel').classed('hidden', d.value === 'tariff-rates');
-      tariffButtonWrapper.classed('hidden', d.value !== 'tariff-rates').style('display', d.value === 'tariff-rates' ? 'flex' : 'none');
+      toggleLegends(displayMode);
       updateMap();
       initNewsPanel(d.value === 'tariff-rates' ? selectedCountry : null, currentYear);
-      updateLegend(showPrevious);
-      console.log('Tariff button wrapper visibility after mode change:', {
-        hidden: tariffButtonWrapper.classed('hidden'),
-        display: tariffButtonWrapper.style('display')
-      });
+      updateLegend(showPrevious, displayMode);
     })
     .on('keydown', (event, d) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
+        console.log('Mode button keydown:', d.label);
         displayMode = d.value;
         d3.selectAll('.mode-button').classed('active', false);
         d3.select(`#mode-${d.id}`).classed('active', true);
         d3.select('#article-panel').classed('hidden', d.value === 'tariff-rates');
-        tariffButtonWrapper.classed('hidden', d.value !== 'tariff-rates').style('display', d.value === 'tariff-rates' ? 'flex' : 'none');
+        toggleLegends(displayMode);
         updateMap();
         initNewsPanel(d.value === 'tariff-rates' ? selectedCountry : null, currentYear);
-        updateLegend(showPrevious);
-        console.log('Tariff button wrapper visibility after mode change:', {
-          hidden: tariffButtonWrapper.classed('hidden'),
-          display: tariffButtonWrapper.style('display')
-        });
+        updateLegend(showPrevious, displayMode);
       }
     });
 
@@ -114,37 +120,33 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
     ? displayPane.append('div').attr('id', 'tariff-button-wrapper')
     : displayPane.select('#tariff-button-wrapper');
 
-  tariffButtonWrapper.classed('hidden', false).style('display', 'flex');
-  console.log('Tariff buttons initialized in #tariff-button-wrapper');
-
   function initializeTariffButtons() {
+    console.log('Initializing tariff buttons');
     tariffButtonWrapper.selectAll('*').remove();
     const tariffButtons = [
-      { id: 'past-rates', label: 'Past Rates', showPrevious: true, scale: [0, 50] },
-      { id: 'current-rates', label: 'Current Rates', showPrevious: false, scale: [0, 145] }
+        { id: 'past-rates', label: 'Past Rates', showPrevious: true, scale: [0, 50] },
+        { id: 'current-rates', label: 'Current Rates', showPrevious: false, scale: [0, 145] }
     ];
 
     tariffButtonWrapper.selectAll('.tariff-button')
-      .data(tariffButtons)
-      .join('button')
-      .attr('class', d => `tariff-button ${!d.showPrevious ? 'active' : ''}`)
-      .attr('id', d => `tariff-${d.id}`)
-      .text(d => d.label)
-      .on('click', (event, d) => {
-        showPrevious = d.showPrevious;
-        console.log('Tariff button clicked:', d.label, 'showPrevious:', showPrevious);
-        d3.selectAll('.tariff-button').classed('active', false);
-        d3.select(`#tariff-${d.id}`).classed('active', true);
-        updateMapColors(d.scale);
-        updateLegend(d.showPrevious);
-        updateMap();
-        tariffButtonWrapper.classed('hidden', false).style('display', 'flex');
-        console.log('Tariff button wrapper visibility after click:', {
-          hidden: tariffButtonWrapper.classed('hidden'),
-          display: tariffButtonWrapper.style('display'),
-          displayPane: d3.select('#display-pane').style('display')
+        .data(tariffButtons)
+        .join('button')
+        .attr('class', d => `tariff-button ${!d.showPrevious ? 'active' : ''}`)
+        .attr('id', d => `tariff-${d.id}`)
+        .text(d => d.label)
+        .on('click', (event, d) => {
+            showPrevious = d.showPrevious;
+            console.log('Tariff button clicked:', d.label, 'showPrevious:', showPrevious, 'scale:', d.scale);
+            d3.selectAll('.tariff-button').classed('active', false);
+            d3.select(`#tariff-${d.id}`).classed('active', true);
+            updateMapColors(d.scale);
+            updateLegend(d.showPrevious, displayMode);
+            updateMap();
+            toggleLegends(displayMode); // Re-apply legend visibility
         });
-      });
+
+    console.log('Tariff buttons created:', tariffButtonWrapper.selectAll('.tariff-button').size());
+    toggleLegends(displayMode); // Set initial visibility
   }
 
   initializeTariffButtons();
@@ -208,6 +210,74 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
       });
   }
 
+  function drawArc(action) {
+    console.log('drawArc called with action:', action);
+    if (currentArc) {
+      svg.selectAll('.arc').remove();
+      currentArc = null;
+    }
+    const { source, target, action: actionType, tariff_rate, product, impact } = action;
+    const coord1 = getCentroid(source);
+    const coord2 = getCentroid(target);
+    if (!coord1 || !coord2) {
+      console.warn(`Invalid coordinates: ${source} (${coord1}), ${target} (${coord2})`);
+      return;
+    }
+
+    const arcGenerator = d3.geoInterpolate(coord1, coord2);
+    const distance = d3.geoDistance(coord1, coord2);
+    const altitude = 0.1 * distance;
+    const points = d3.range(0, 1.01, 0.01).map(t => {
+      const point = arcGenerator(t);
+      const angle = Math.PI * t;
+      const height = Math.sin(angle) * altitude;
+      const scale = 1 + height;
+      return [point[0], point[1], scale];
+    });
+
+    const lineGenerator = d3.line()
+      .x(d => projection([d[0], d[1]])[0])
+      .y(d => projection([d[0], d[1]])[1]);
+
+    const arcPath = {
+      type: 'LineString',
+      coordinates: points.map(p => [p[0], p[1]])
+    };
+
+    currentArc = arcPath;
+    const arcClass = actionType === 'retaliation' || actionType === 'tariff' ? 'retaliation' : actionType;
+    const arc = svg.append('path')
+      .datum(arcPath)
+      .attr('class', `arc ${arcClass}`)
+      .attr('d', lineGenerator(points))
+      .style('fill', 'none')
+      .attr('marker-end', `url(#arrowhead-${arcClass})`)
+      .raise();
+
+    arc.on('mouseover', (event) => {
+      d3.select('#tooltip')
+        .style('display', 'block')
+        .style('opacity', 1)
+        .style('left', `${event.pageX + 10}px`)
+        .style('top', `${event.pageY - 10}px`)
+        .html(`
+          <strong>${source} → ${target}</strong><br>
+          Action: ${actionType}<br>
+          Tariff: ${tariff_rate}<br>
+          Product: ${product}<br>
+          Impact: ${impact}
+        `);
+    }).on('mouseout', () => {
+      d3.select('#tooltip').style('opacity', 0).style('display', 'none');
+    });
+
+    [source, target].forEach(country => {
+      document.dispatchEvent(new CustomEvent('updateCountryStatus', {
+        detail: { country, status: actionType }
+      }));
+    });
+  }
+
   function getCountryStatus(countryName) {
     const relevantArticles = curatedArticles.filter(article =>
       new Date(article.metadata.date).getFullYear() === currentYear &&
@@ -222,11 +292,13 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
   }
 
   function updateMap() {
-    console.log('Updating map for year:', currentYear, 'Mode:', displayMode);
+    console.log('Updating map for year:', currentYear, 'Mode:', displayMode, 'showPrevious:', showPrevious);
     const articlesInYear = curatedArticles.filter(
       article => new Date(article.metadata.date).getFullYear() === currentYear
     );
     console.log('Articles in year:', articlesInYear);
+    svg.selectAll('.arc').remove();
+    currentArc = null;
 
     svg.selectAll('.country').style('fill', d => {
       const alpha3 = window.numericToAlpha3[d.id];
@@ -254,8 +326,6 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
         return tariff != null && tariff >= 0 ? tariffScale(tariff) : '#555';
       }
     });
-
-    updateLegend(showPrevious);
   }
 
   function redraw() {
@@ -264,6 +334,12 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
     svg.selectAll('.sphere')
       .attr('d', path)
       .style('opacity', projection.scale() > scaleFactor * 1.5 ? 0 : 1);
+    if (currentArc) {
+      const lineGenerator = d3.line()
+        .x(d => projection([d[0], d[1]])[0])
+        .y(d => projection([d[0], d[1]])[1]);
+      svg.selectAll('.arc').attr('d', lineGenerator(currentArc.coordinates));
+    }
   }
 
   function getTariffValue(countryName, showPrevious) {
@@ -273,7 +349,9 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
       return null;
     }
     const rate = showPrevious ? data.previous : data.updated;
-    return parseFloat(rate.replace('%', '')) || 0;
+    const parsedRate = parseFloat(rate.replace('%', '')) || 0;
+    console.log(`getTariffValue: ${countryName}, showPrevious: ${showPrevious}, rate: ${rate}, parsed: ${parsedRate}`);
+    return parsedRate;
   }
 
   function updateMapColors(scale) {
@@ -293,8 +371,11 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
       if (countryName.toLowerCase() === 'united states') {
         return '#1E90FF';
       }
+      if (d.id === selectedCountry) {
+        return '#FFFFFF';
+      }
       const tariff = countryName && window.tariffData[countryName] ? getTariffValue(countryName, showPrevious) : null;
-      console.log(`Updating ${countryName}: Tariff=${tariff}`);
+      console.log(`Updating ${countryName}: Tariff=${tariff}, scale=${scale}`);
       return tariff != null && tariff >= 0 ? tariffScale(tariff) : '#555';
     });
   }
@@ -368,6 +449,8 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
         onCountryClick(null);
       }
       selectedCountry = null;
+      svg.selectAll('.arc').remove();
+      currentArc = null;
       updateMap();
       return;
     }
@@ -387,6 +470,18 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
       updateMap();
     }
   }
+
+  document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('view-on-map')) {
+      console.log('View on Map clicked:', event.target.dataset.action);
+      try {
+        const action = JSON.parse(event.target.dataset.action);
+        drawArc(action);
+      } catch (e) {
+        console.error('Error parsing action:', e);
+      }
+    }
+  });
 
   document.addEventListener('updateCountryStatus', (event) => {
     const { country, status } = event.detail;
@@ -418,6 +513,22 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
   });
 
   const defs = svg.append('defs');
+  ['retaliation', 'tariff', 'negotiation', 'compliance'].forEach(action => {
+    defs.append('marker')
+      .attr('id', `arrowhead-${action}`)
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 8)
+      .attr('refY', 0)
+      .attr('markerWidth', 5)
+      .attr('markerHeight', 5)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-4L10,0L0,4')
+      .attr('fill', action === 'retaliation' || action === 'tariff' ? '#e57373' :
+                    action === 'compliance' ? '#81c784' : '#ffd54f')
+      .style('opacity', 0.9);
+  });
+
   const filter = defs.append('filter')
     .attr('id', 'glow')
     .attr('x', '-20%')
@@ -435,142 +546,98 @@ export function initMap(svg, width, height, tariffScale, updateLegend, { handleM
 
   function loadMapData() {
     fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json', { cache: 'force-cache' })
-      .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        console.log("Map data loaded successfully");
-        return response.json();
-      })
-      .then(data => {
-        worldData = data;
-        const countries = topojson.feature(worldData, worldData.objects.countries).features;
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            console.log("Map data loaded successfully");
+            return response.json();
+        })
+        .then(data => {
+            worldData = data;
+            const countries = topojson.feature(worldData, worldData.objects.countries).features;
 
-        countries.forEach(feature => {
-          if (!feature.geometry) {
-            console.warn(`Feature ID ${feature.id}: no geometry, skipping`);
-          }
+            countries.forEach(feature => {
+                if (!feature.geometry) {
+                    console.warn(`Feature ID ${feature.id}: no geometry, skipping`);
+                }
+            });
+
+            svg.append('path')
+                .datum({ type: 'Sphere' })
+                .attr('class', 'sphere')
+                .attr('d', path)
+                .style('fill', '#1a1a1a')
+                .style('stroke', 'none');
+
+            svg.append('path')
+                .datum(graticule)
+                .attr('class', 'graticule')
+                .attr('d', path)
+                .style('fill', 'none')
+                .style('stroke', '#3a3a3a')
+                .style('stroke-width', '0.5px');
+
+            svg.selectAll('.country')
+                .data(countries)
+                .enter()
+                .append('path')
+                .attr('class', d => {
+                    const alpha3 = window.numericToAlpha3[d.id];
+                    const countryName = window.countryCodeToName[alpha3];
+                    const hasTariff = countryName && window.tariffData[countryName];
+                    return hasTariff ? 'country has-tariff' : 'country no-data';
+                })
+                .style('fill', d => {
+                    const alpha3 = window.numericToAlpha3[d.id];
+                    const countryName = window.countryCodeToName[alpha3];
+                    const tariff = countryName && window.tariffData[countryName] ? getTariffValue(countryName, false) : null;
+                    return countryName && countryName.toLowerCase() === 'united states' ? '#1E90FF' :
+                           tariff != null && tariff >= 0 ? tariffScale(tariff) : '#555';
+                })
+                .style('filter', d => {
+                    const countryName = window.countryCodeToName[window.numericToAlpha3[d.id]];
+                    const isUSA = countryName?.toLowerCase() === 'united states';
+                    console.log(`Applying glow to ${countryName || 'unknown'}:`, isUSA ? 'url(#glow)' : 'none');
+                    return isUSA ? 'url(#glow)' : null;
+                })
+                .style('shape-rendering', d => window.countryCodeToName[window.numericToAlpha3[d.id]]?.toLowerCase() === 'united states' ? 'crispEdges' : 'auto')
+                .attr('data-alpha3', d => window.numericToAlpha3[d.id] || '')
+                .attr('d', path)
+                .attr('id', d => `country-${d.id}`)
+                .attr('role', 'button')
+                .attr('aria-label', d => window.countryCodeToName[window.numericToAlpha3[d.id]] || 'Unknown Country')
+                .attr('tabindex', 0)
+                .on('mouseover', (event, d) => {
+                    if (!isDragging) handleMouseOver(event, d);
+                })
+                .on('mousemove', (event) => {
+                    if (!isDragging) handleMouseMove(event);
+                })
+                .on('mouseout', () => {
+                    if (!isDragging) handleMouseOut();
+                })
+                .on('click', handleClick)
+                .on('keydown', (event, d) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        handleClick(event, d);
+                    }
+                });
+
+            console.log(`Rendered ${countries.length} countries on the globe`);
+            document.getElementById('loading').style.display = 'none';
+
+            projection.scale(scaleFactor * 1.5);
+            redraw();
+            panAndZoomToCountry('United States');
+
+            // Initialize legend visibility
+            updateLegend(false, 'tariff-rates');
+            toggleLegends('tariff-rates');
+            console.log('Initial load visibility set to tariff-rates');
+        })
+        .catch(error => {
+            console.error('Error loading map data:', error);
+            document.getElementById('loading').innerHTML = 'Error loading map. <button onclick="location.reload()">Retry</button>';
         });
-
-        svg.append('path')
-          .datum({ type: 'Sphere' })
-          .attr('class', 'sphere')
-          .attr('d', path)
-          .style('fill', '#1a1a1a')
-          .style('stroke', 'none');
-
-        svg.append('path')
-          .datum(graticule)
-          .attr('class', 'graticule')
-          .attr('d', path)
-          .style('fill', 'none')
-          .style('stroke', '#3a3a3a')
-          .style('stroke-width', '0.5px');
-
-        svg.selectAll('.country')
-          .data(countries)
-          .enter()
-          .append('path')
-          .attr('class', d => {
-            const alpha3 = window.numericToAlpha3[d.id];
-            const countryName = window.countryCodeToName[alpha3];
-            const hasTariff = countryName && window.tariffData[countryName];
-            return hasTariff ? 'country has-tariff' : 'country no-data';
-          })
-          .style('fill', d => {
-            const alpha3 = window.numericToAlpha3[d.id];
-            const countryName = window.countryCodeToName[alpha3];
-            const tariff = countryName && window.tariffData[countryName] ? getTariffValue(countryName, false) : null;
-            return countryName && countryName.toLowerCase() === 'united states' ? '#1E90FF' :
-                   tariff != null && tariff >= 0 ? tariffScale(tariff) : '#555';
-          })
-          .style('filter', d => {
-            const countryName = window.countryCodeToName[window.numericToAlpha3[d.id]];
-            const isUSA = countryName?.toLowerCase() === 'united states';
-            console.log(`Applying glow to ${countryName || 'unknown'}:`, isUSA ? 'url(#glow)' : 'none');
-            return isUSA ? 'url(#glow)' : null;
-          })
-          .style('shape-rendering', d => window.countryCodeToName[window.numericToAlpha3[d.id]]?.toLowerCase() === 'united states' ? 'crispEdges' : 'auto')
-          .attr('data-alpha3', d => window.numericToAlpha3[d.id] || '')
-          .attr('d', path)
-          .attr('id', d => `country-${d.id}`)
-          .attr('role', 'button')
-          .attr('aria-label', d => window.countryCodeToName[window.numericToAlpha3[d.id]] || 'Unknown Country')
-          .attr('tabindex', 0)
-          .on('mouseover', (event, d) => {
-            if (!isDragging) handleMouseOver(event, d);
-          })
-          .on('mousemove', (event) => {
-            if (!isDragging) handleMouseMove(event);
-          })
-          .on('mouseout', () => {
-            if (!isDragging) handleMouseOut();
-          })
-          .on('click', handleClick)
-          .on('keydown', (event, d) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              handleClick(event, d);
-            }
-          });
-
-        console.log(`Rendered ${countries.length} countries on the globe`);
-        document.getElementById('loading').style.display = 'none';
-
-        projection.scale(scaleFactor * 1.5);
-        redraw();
-        panAndZoomToCountry('United States');
-
-        setTimeout(() => {
-          console.log('Final projection rotation:', projection.rotate());
-          console.log('Canvas translate:', projection.translate(), 'Scale:', projection.scale());
-          const usaCentroid = getCentroid('United States');
-          console.log('USA centroid:', usaCentroid);
-          const usaCoords = projection([-103.6296450709934, 44.74379504310722]);
-          console.log('USA screen coordinates:', usaCoords);
-        }, 1500);
-      })
-      .catch(error => {
-        console.error('Error loading map data:', error);
-        document.getElementById('loading').innerHTML = 'Error loading map. <button onclick="location.reload()">Retry</button>';
-      });
-  }
-
-  function updateLegend(isPrevious) {
-    console.log('Map: Updating legend, showPrevious:', isPrevious);
-    const legend = d3.select('#legend');
-    legend.selectAll('*').remove();
-
-    if (displayMode === 'tariff-news') {
-      legend.append('div')
-        .attr('class', 'legend-title')
-        .text('Trade Status');
-      legend.append('div')
-        .attr('class', 'legend-item')
-        .html('<span class="legend-color" style="background:#e57373"></span>Retaliation/Tariff');
-      legend.append('div')
-        .attr('class', 'legend-item')
-        .html('<span class="legend-color" style="background:#ffd54f"></span>Negotiation');
-      legend.append('div')
-        .attr('class', 'legend-item')
-        .html('<span class="legend-color" style="background:#81c784"></span>Compliance');
-      legend.append('div')
-        .attr('class', 'legend-item')
-        .html('<span class="legend-color" style="background:#555"></span>Neutral');
-    } else {
-      const domain = isPrevious ? [0, 50] : [0, 145];
-      legend.append('div')
-        .attr('class', 'legend-title')
-        .text(isPrevious ? 'Previous Tariff Rates' : 'Current Tariff Rates');
-      legend.append('div')
-        .attr('class', 'legend-item')
-        .html(`<span class="legend-color gradient"></span>${domain[0]}% to ${domain[1]}%`);
-    }
-
-    initializeTariffButtons();
-    tariffButtonWrapper.classed('hidden', displayMode !== 'tariff-rates').style('display', displayMode === 'tariff-rates' ? 'flex' : 'none');
-    console.log('Tariff button wrapper visibility after legend update:', {
-      hidden: tariffButtonWrapper.classed('hidden'),
-      display: tariffButtonWrapper.style('display'),
-      displayPane: d3.select('#display-pane').style('display')
-    });
   }
 
   loadMapData();
