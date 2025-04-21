@@ -1,33 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About World Tariff Map</title>
-    <link rel="stylesheet" href="world.css">
-</head>
-<body>
-    <header class="header">
-        <div class="cta-container" id="banner">
-            <a href="index.html" class="top-right-link">Dashboard</a>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Learn about the Tariff Map project and its mission to visualize global trade data.">
+        <meta name="keywords" content="tariff map, about, global trade">
+        <meta name="author" content="Your Name">
+        <title>About Tariff Map</title>
+        <link rel="stylesheet" href="world.css">
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "About Tariff Map",
+          "url": "https://visualtariffs.com/about.html",
+          "description": "Learn about the Tariff Map project and its mission."
+        }
+        </script>
+    </head>
+    <body>
+        <div class="header">
+            <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <div class="dropdown-menu">
+                <a href="index.html" class="dropdown-link">Map</a>
+                <a href="news.html" class="dropdown-link">News</a>
+            </div>
         </div>
-    </header>
-    <div class="about-container">
-        <h1>About Visual Tariffs</h1>
-        <p>
-            VisualTariffs is an interactive tool designed to help users visualize and understand tariff rates across different countries, with a focus on trade with the United States.
-        </p>
-        <p>
-            Key features include:
-        </p>
-        <ul>
-            <li>Interactive world map displaying tariff rates by country.</li>
-            <li>Calculators to estimate tariff costs based on origin, material, quantity, and price.</li>
-            <li>Detailed country-specific tariff data, including import shares and rate changes.</li>
-        </ul>
-        <p>
-            Our mission is to simplify access to complex trade data, empowering users to navigate the global economy with confidence. For updates and more information, follow me on X at <a href="https://x.com/writesfast" target="_blank">@writesfast</a>.
-        </p>
-    </div>
-</body>
+        <div class="about-container">
+            <h1>About Visual Tariffs</h1>
+            <p>Visual Tariffs visualises global tariff rates and trade dynamics through an interactive world map, helping make sense of geopolitics.</p>
+        </div>
+        <script>
+            // Hamburger menu toggle
+            document.addEventListener('DOMContentLoaded', () => {
+                const hamburger = document.querySelector('.hamburger');
+                const dropdownMenu = document.querySelector('.dropdown-menu');
+
+                // Toggle dropdown on hamburger click
+                hamburger.addEventListener('click', () => {
+                    const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+                    hamburger.setAttribute('aria-expanded', !isExpanded);
+                    dropdownMenu.classList.toggle('open');
+                });
+
+                // Toggle dropdown on Enter key
+                hamburger.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+                        hamburger.setAttribute('aria-expanded', !isExpanded);
+                        dropdownMenu.classList.toggle('open');
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (event) => {
+                    if (!hamburger.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        hamburger.setAttribute('aria-expanded', 'false');
+                        dropdownMenu.classList.remove('open');
+                    }
+                });
+
+                // Close dropdown when a link is clicked
+                dropdownMenu.querySelectorAll('.dropdown-link').forEach(link => {
+                    link.addEventListener('click', () => {
+                        hamburger.setAttribute('aria-expanded', 'false');
+                        dropdownMenu.classList.remove('open');
+                    });
+                });
+            });
+        </script>
+    </body>
 </html>
