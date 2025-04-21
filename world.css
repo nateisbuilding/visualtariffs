@@ -13,6 +13,49 @@
     --button-bg: #555;
     --button-bg-active: #888;
     --button-border: #444;
+    --panel-bg: rgba(42, 42, 42, 0.95);
+    --z-header: 10;
+    --z-cta: 20;
+    --z-controls: 30;
+    --z-tooltip: 40;
+}
+
+.button {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--button-border);
+    background: var(--button-bg);
+    color: var(--text-color);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-align: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.button:hover:not(.active) {
+    background: #666;
+}
+
+.button.active {
+    background: var(--button-bg-active);
+    border-color: var(--button-bg-active);
+}
+
+.button:focus {
+    outline: none;
+    background: #666;
+}
+
+/* Specific Button Variations */
+.mode-button {
+    border-radius: 1.5rem;
+    min-width: 100px;
+    padding: 0.5rem 1.2rem;
+}
+
+.tariff-button {
+    border-radius: 0;
+    flex: 1;
 }
 
 /* Reset and Base */
@@ -26,61 +69,101 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
     background-color: var(--primary-color);
     color: var(--text-color);
-    display: flex;
-    flex-direction: column;
+    margin: 0;
     height: 100vh;
     overflow-x: hidden;
 }
 
 /* Header */
 .header {
-    background-color: var(--secondary-color);
     padding: 0.5rem;
-    position: relative;
-    display: flex;
-    align-items: center;
-    min-height: 2.5rem;
-    z-index: 1000;
-    border-bottom: 1px solid var(--border-color);
-}
-
-/* CTA (Banner) */
-.cta-container {
     position: absolute;
     top: 0;
-    left: 0.5rem;
-    right: 0.5rem;
-    min-height: 2.5rem;
-    background-color: transparent;
-    z-index: 1001;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    z-index: var(--z-header);
+    background: none;
 }
 
-.cta-container.visible {
+/* Hamburger Menu */
+.hamburger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 2.5rem;
+    height: 2.2rem;
+    z-index: var(--z-controls);
+}
+
+.hamburger-line {
     display: block;
+    width: 100%;
+    height: 0.18rem;
+    background-color: var(--text-color);
+    margin: 0;
+    transition: all 0.2s ease;
 }
 
-/* Navigation (About/Dashboard Button) */
-.top-right-link {
-    position: relative;
-    display: inline-block;
-    margin-left: 0.5rem;
-    background-color: var(--button-bg);
-    color: var(--text-color);
-    padding: 0.4rem 0.8rem;
-    border: 1px solid var(--button-border);
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(0.5rem, 0.5rem);
+}
+
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger[aria-expanded="true"] .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(0.5rem, -0.5rem);
+}
+
+.hamburger:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 2.8rem;
+    left: 0.5rem;
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
     border-radius: 0.25rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    z-index: var(--z-controls);
+    transition: opacity 0.2s ease;
+    opacity: 0;
+}
+
+.dropdown-menu.open {
+    display: flex;
+    opacity: 1;
+}
+
+.dropdown-link {
+    padding: 0.5rem 1.5rem;
+    min-width: 120px;
+    color: var(--text-color);
     text-decoration: none;
-    font-size: 0.8rem;
-    z-index: 1002;
-    transition: background-color var(--transition-speed);
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
 }
 
-.top-right-link:nth-child(1) {
-    margin-right: 0.5rem;
+.dropdown-link:hover,
+.dropdown-link:focus {
+    background-color: #666;
 }
 
-.top-right-link:hover {
-    background-color: var(--button-bg-active);
+.dropdown-link:focus {
+    outline: none;
+    background-color: #666;
 }
 
 /* Mode Toggle Container (Bottom Center) */
@@ -89,7 +172,7 @@ body {
     bottom: 1rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 1000;
+    z-index: var(--z-controls);
     display: flex;
     justify-content: center;
 }
@@ -126,15 +209,11 @@ body {
     border-color: var(--button-bg-active);
 }
 
-.mode-button:hover:not(.active) {
-    background: #666;
-}
-
 /* Display Mode Pane (Legend, Tariff Buttons) */
 .controls-container {
     position: fixed;
     bottom: 2rem;
-    right: 1rem;
+    left: 1rem;
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -149,51 +228,15 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    min-width: 200px;
+    min-width: 220px;
 }
 
-#tariff-slider-wrapper {
-    display: flex !important;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0 0; /* Removed bottom padding */
-    background: transparent;
-    border-radius: 0.5rem;
-    transition: opacity 0.3s ease;
-    opacity: 1 !important;
-}
-
-#tariff-slider-wrapper.hidden {
-    display: none !important;
-}
-
-.tariff-button {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--button-border);
-    background: var(--button-bg);
-    color: var(--text-color);
-    border-radius: 1.5rem;
-    cursor: pointer;
-    font-size: 0.85rem;
-    text-align: center;
-    transition: all 0.2s ease;
-    flex: 1;
-}
-
-.tariff-button.active {
-    background: var(--button-bg-active);
-    border-color: var(--button-bg-active);
-}
-
-.tariff-button:hover:not(.active) {
-    background: #666;
-}
-
-#legend {
+#legend, #news-legend {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem; /* Reduced gap for tighter spacing */
-    margin: 0; /* Ensure no default margins */
+    gap: 0.2rem;
+    margin: 0;
+    font-size: 0.8rem;
 }
 
 .legend-title {
@@ -202,6 +245,7 @@ body {
     margin: 0;
     padding: 0;
     line-height: 1.2;
+    transition: none;
 }
 
 .legend-item {
@@ -224,6 +268,44 @@ body {
 .legend-item span {
     font-size: 0.8rem;
     color: var(--text-color);
+}
+
+.hidden {
+    display: none;
+}
+
+#tariff-button-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.3rem;
+    margin: 0.3rem 0;
+}
+
+.tariff-button {
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--button-border);
+    background: var(--button-bg);
+    color: var(--text-color);
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 0.75rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tariff-button:hover:not(.active) {
+    background: #666;
+}
+
+.tariff-button.active {
+    background: var(--button-bg-active);
+    border-color: var(--button-bg-active);
+}
+
+.tariff-button:focus {
+    outline: none;
+    background: #666;
 }
 
 /* News Panel */
@@ -269,53 +351,18 @@ body {
     line-height: 1.4;
 }
 
-/* Article Panel */
-#article-panel {
-    position: fixed;
-    top: 2.5rem;
-    right: 0;
-    width: 21.875rem;
-    background-color: rgba(42, 42, 42, 0.95);
-    padding: 1.25rem;
-    z-index: 1000;
-    overflow-y: auto;
-    max-height: calc(100vh - 2.5rem);
-    transform: translateX(100%);
-    transition: transform var(--transition-speed);
-}
-
-#article-panel:not(.hidden) {
-    transform: translateX(0);
-}
-
-#article-panel.hidden {
-    display: block;
-    transform: translateX(100%);
-}
-
-#article-panel h2 {
-    font-size: 1.5rem;
-    font-weight: 500;
-    margin-bottom: 1rem;
-}
-
-#article-panel-articles {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
 /* Map */
 #map-container {
     width: 100%;
-    height: calc(100vh - 3.4375rem);
-    position: relative;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
     overflow: hidden;
     background: var(--map-bg);
-}
-
-#map-container.no-banner {
-    height: calc(100vh - 2.5rem);
+    touch-action: pinch-zoom;
+    z-index: 0;
 }
 
 svg {
@@ -367,19 +414,15 @@ svg {
 /* Info Panel */
 #info-panel {
     position: absolute;
-    top: 3.4375rem;
+    top: 0;
     right: 0;
     width: 18.75rem;
-    background-color: rgba(42, 42, 42, 0.85);
+    background-color: var(--panel-bg);
     color: var(--text-color);
     padding: 1.25rem;
-    z-index: 1000;
+    z-index: var(--z-controls);
     overflow-y: auto;
     max-height: calc(100vh - 12.5rem);
-}
-
-#info-panel.no-banner {
-    top: 2.5rem;
 }
 
 #info-panel.hidden {
@@ -449,13 +492,13 @@ svg {
 /* Tooltip */
 #tooltip {
     position: absolute;
-    background-color: rgba(42, 42, 42, 0.95);
+    background-color: var(--panel-bg);
     color: var(--text-color);
     padding: 0.5rem 0.75rem;
     border-radius: 0.25rem;
     font-size: 0.75rem;
     pointer-events: none;
-    z-index: 1001;
+    z-index: var(--z-tooltip);
     line-height: 1.4;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2);
     opacity: 0;
@@ -516,6 +559,23 @@ svg {
     text-decoration: underline;
 }
 
+/* News Container */
+.news-container {
+    max-width: 50rem;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    background-color: var(--secondary-color);
+    border-radius: 0.25rem;
+    border: 1px solid var(--button-border);
+}
+
+.news-container h1 {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+}
+
 /* Accessibility */
 .sr-only {
     position: absolute;
@@ -530,39 +590,47 @@ svg {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+    }
+
+    .hamburger {
+        width: 2.2rem;
+        height: 1.8rem;
+    }
+
+    .hamburger-line {
+        height: 0.15rem;
+    }
+
+    .dropdown-menu {
+        top: 2.5rem;
+        left: 0.3rem;
+    }
+
+    .dropdown-link {
+        padding: 0.4rem 1.2rem;
+        min-width: 100px;
+        font-size: 0.8rem;
+    }
+
+    .mode-button {
+        min-width: 80px;
+    }
+
     .header {
         padding: 0.5rem;
-        min-height: 2.5rem;
-    }
-
-    .cta-container {
-        left: 0.5rem;
-        right: 0.5rem;
-        min-height: 2.5rem;
-    }
-
-    .top-right-link {
-        top: 0.375rem;
-        padding: 0.3rem 0.6rem;
-        font-size: 0.7rem;
-    }
-
-    #map-container {
-        height: calc(100vh - 3.4375rem);
-    }
-
-    #map-container.no-banner {
-        height: calc(100vh - 2.5rem);
     }
 
     .controls-container {
         bottom: 0.5rem;
-        right: 0.5rem;
+        left: 0.5rem;
     }
 
     #display-pane {
         padding: 0.75rem;
-        min-width: 180px;
+        min-width: 198px;
     }
 
     #mode-toggle-container {
@@ -573,30 +641,11 @@ svg {
         padding: 0.4rem;
     }
 
-    .mode-button {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.75rem;
-        min-width: 80px;
-    }
-
-    .tariff-button {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.75rem;
+    #map-container {
+        height: 100vh;
     }
 
     #info-panel {
-        width: 100%;
-        top: auto;
-        bottom: 0;
-        max-height: calc(50vh - 6.25rem);
-    }
-
-    #info-panel.no-banner {
-        top: auto;
-        bottom: 0;
-    }
-
-    #article-panel {
         width: 100%;
         top: auto;
         bottom: 0;
@@ -623,39 +672,13 @@ svg {
         font-size: 0.75rem;
     }
 
-    #tooltip {
-        display: none;
-    }
-
-    .about-container {
-        margin: 1rem;
-        padding: 1rem;
-    }
-}
-
-/* News Container */
-.news-container {
-    max-width: 50rem;
-    margin: 2rem auto;
-    padding: 1.5rem;
-    background-color: var(--secondary-color);
-    border-radius: 0.25rem;
-    border: 1px solid var(--border-color);
-}
-
-.news-container h1 {
-    font-size: 2rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-    color: var(--text-color);
-}
-
-@media (max-width: 768px) {
+    .about-container,
     .news-container {
         margin: 1rem;
         padding: 1rem;
     }
 
+    .about-container h1,
     .news-container h1 {
         font-size: 1.5rem;
     }
