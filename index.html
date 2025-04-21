@@ -1,54 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Explore global tariff rates and trade news with an interactive world map.">
-        <meta name="keywords" content="tariff map, trade data, global tariffs, interactive map">
-        <meta name="author" content="Your Name">
-        <title>Tariff Map - Interactive Global Trade Data</title>
-        <link rel="stylesheet" href="world.css">
-        <script type="application/ld+json">
-        {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "name": "Tariff Map",
-          "url": "https://visualtariffs.com",
-          "description": "Interactive world map showing tariff rates and trade news."
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZ1SCHRR84"></script>
+    <script>
+        try {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XZ1SCHRR84');
+        } catch (e) {
+            console.error('Error initializing gtag:', e);
         }
-        </script>
-      </head>
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore global tariff rates and trade news with an interactive world map.">
+    <meta name="keywords" content="tariff map, trade data, global tariffs, interactive map">
+    <meta name="author" content="Your Name">
+    <title>Tariff Map - Interactive Global Trade Data</title>
+    <link rel="stylesheet" href="world.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Tariff Map",
+      "url": "https://visualtariffs.com",
+      "description": "Interactive world map showing tariff rates and trade news."
+    }
+    </script>
+</head>
 <body>
-  <div class="header">
-    <div class="cta-container"></div>
-    <a href="news.html" class="top-right-link">News</a>
-    <a href="about.html" class="top-right-link">About</a>
-  </div>
-  <div id="map-container">
-    <div id="loading" class="loading">Loading...</div>
-  </div>
-  <div id="info-panel" class="hidden"></div>
-  <div class="controls-container">
-    <div id="display-pane">
-      <div id="legend">
-        <div class="legend-title">Current Tariff Rates</div>
-        <div id="tariff-slider-wrapper"></div>
-        <div class="legend-item"><span class="legend-color gradient"></span>0% to 145%</div>
-      </div>
+    <div class="header">
+        <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        <div class="dropdown-menu">
+            <a href="about.html" class="dropdown-link">About</a>
+            <a href="news.html" class="dropdown-link">News</a>
+        </div>
     </div>
-  </div>
-  <div id="mode-toggle-container">
-    <div id="mode-toggle">
-      <div id="mode-toggle-buttons"></div>
+    <div id="map-container">
+        <div id="loading" class="loading">Loading...</div>
     </div>
-  </div>
-  <div id="tooltip"></div>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://unpkg.com/topojson@3"></script>
-  <script type="module" src="data.js"></script>
-  <script type="module" src="ui.js"></script>
-  <script type="module" src="map.js"></script>
-  <script type="module" src="world.js"></script>
-  <script type="module" src="news.js"></script>
+    <div id="info-panel" class="hidden"></div>
+    <div class="controls-container">
+        <div id="display-pane">
+            <div id="legend" class="legend-tariff">
+                <div class="legend-title">Tariff Rates</div>
+                <div class="legend-item">
+                    <span class="legend-color gradient"></span>
+                    <span id="legend-range">10% to 145%</span>
+                </div>
+            </div>
+            <div id="news-legend" class="legend-news hidden">
+                <div class="legend-title">Trade Status</div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background:#e57373"></span>
+                    <span>Retaliation/Tariff</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background:#ffd54f"></span>
+                    <span>Negotiation</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background:#81c784"></span>
+                    <span>Compliance</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background:#555"></span>
+                    <span>Neutral</span>
+                </div>
+            </div>
+            <div id="tariff-button-wrapper">
+                <button class="tariff-button" id="tariff-past-rates">Past Rates</button>
+                <button class="tariff-button active" id="tariff-current-rates">Current Rates</button>
+            </div>
+        </div>
+    </div>
+    <div id="mode-toggle-container">
+        <div id="mode-toggle">
+            <div id="mode-toggle-buttons"></div>
+        </div>
+    </div>
+    <div id="tooltip"></div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script type="module" src="data.js"></script>
+    <script type="module" src="ui.js"></script>
+    <script type="module" src="map.js"></script>
+    <script type="module" src="world.js"></script>
+    <script type="module" src="news.js"></script>
+    <script>
+        // Hamburger menu toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const hamburger = document.querySelector('.hamburger');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+
+            // Toggle dropdown on hamburger click
+            hamburger.addEventListener('click', () => {
+                const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+                hamburger.setAttribute('aria-expanded', !isExpanded);
+                dropdownMenu.classList.toggle('open');
+            });
+
+            // Toggle dropdown on Enter key
+            hamburger.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+                    hamburger.setAttribute('aria-expanded', !isExpanded);
+                    dropdownMenu.classList.toggle('open');
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!hamburger.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                    hamburger.setAttribute('aria-expanded', 'false');
+                    dropdownMenu.classList.remove('open');
+                }
+            });
+
+            // Close dropdown when a link is clicked
+            dropdownMenu.querySelectorAll('.dropdown-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.setAttribute('aria-expanded', 'false');
+                    dropdownMenu.classList.remove('open');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
