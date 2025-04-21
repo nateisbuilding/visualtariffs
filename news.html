@@ -1,41 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Latest trade news and tariff updates">
-  <title>Trade News</title>
-  <link rel="stylesheet" href="world.css">
-</head>
-<body>
-  <div class="header">
-    <div class="cta-container"></div>
-    <a href="index.html" class="top-right-link">Map</a>
-    <a href="about.html" class="top-right-link">About</a>
-  </div>
-  <div class="news-container">
-    <h1>Trade News</h1>
-    <div id="news-articles"></div>
-  </div>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script type="module" src="articles.js"></script>
-  <script type="module">
-    import { curatedArticles } from './articles.js';
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Latest news on global tariffs and trade.">
+        <meta name="keywords" content="tariff news, trade news, global trade">
+        <meta name="author" content="Your Name">
+        <title>Tariff News</title>
+        <link rel="stylesheet" href="world.css">
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Tariff News",
+          "url": "https://visualtariffs.com/news.html",
+          "description": "Latest news on global tariffs and trade."
+        }
+        </script>
+    </head>
+    <body>
+        <div class="header">
+            <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <div class="dropdown-menu">
+                <a href="index.html" class="dropdown-link">Map</a>
+                <a href="about.html" class="dropdown-link">About</a>
+            </div>
+        </div>
+        <div class="news-container">
+            <h1>Trade News</h1>
+            <div id="news-articles"></div>
+            <div class="disclaimer">Note: News articles are sourced from publicly available data and may not reflect real-time updates.</div>
+        </div>
+        <script type="module">
+            import { curatedArticles } from './articles.js';
 
-    function initNewsPage() {
-      const newsContainer = d3.select('#news-articles');
-      newsContainer.selectAll('.news-article')
-        .data(curatedArticles.sort((a, b) => new Date(b.metadata.date) - new Date(a.metadata.date)))
-        .join('div')
-        .attr('class', 'news-article')
-        .html(d => `
-          <h3>${d.title}</h3>
-          <p>${d.content}</p>
-          <p class="source">Curated Analysis - ${new Date(d.metadata.date).toLocaleDateString()}</p>
-        `);
-    }
+            // Render articles
+            const articlesContainer = document.getElementById('news-articles');
+            curatedArticles.forEach(article => {
+                const articleElement = document.createElement('article');
+                articleElement.classList.add('news-article');
+                articleElement.innerHTML = `
+                    <h3>${article.title}</h3>
+                    <p>${article.content}</p>
+                    <div class="source">Source: ${article.metadata.source}, ${article.metadata.date}</div>
+                `;
+                articlesContainer.appendChild(articleElement);
+            });
+        </script>
+        <script>
+            // Hamburger menu toggle
+            document.addEventListener('DOMContentLoaded', () => {
+                const hamburger = document.querySelector('.hamburger');
+                const dropdownMenu = document.querySelector('.dropdown-menu');
 
-    document.addEventListener('DOMContentLoaded', initNewsPage);
-  </script>
-</body>
+                // Toggle dropdown on hamburger click
+                hamburger.addEventListener('click', () => {
+                    const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+                    hamburger.setAttribute('aria-expanded', !isExpanded);
+                    dropdownMenu.classList.toggle('open');
+                });
+
+                // Toggle dropdown on Enter key
+                hamburger.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+                        hamburger.setAttribute('aria-expanded', !isExpanded);
+                        dropdownMenu.classList.toggle('open');
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (event) => {
+                    if (!hamburger.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        hamburger.setAttribute('aria-expanded', 'false');
+                        dropdownMenu.classList.remove('open');
+                    }
+                });
+
+                // Close dropdown when a link is clicked
+                dropdownMenu.querySelectorAll('.dropdown-link').forEach(link => {
+                    link.addEventListener('click', () => {
+                        hamburger.setAttribute('aria-expanded', 'false');
+                        dropdownMenu.classList.remove('open');
+                    });
+                });
+            });
+        </script>
+    </body>
 </html>
